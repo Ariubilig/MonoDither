@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from "react";
-import useTheme from "./useTheme.jsx";
 import {
   floydSteinberg,
   atkinson,
@@ -65,8 +64,7 @@ const defaultPalettes = {
 };
 const algorithmNames = Object.keys(algorithmsConfig);
 
-export default function qingTool() {
-  const { theme, toggleTheme } = useTheme();
+function DitheringTool() {
   const [image, setImage] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [paletteName, setPaletteName] = useState("Black & White");
@@ -161,25 +159,10 @@ export default function qingTool() {
   }
 
   return (
-    <div className="app">
-      {/* Sidebar */}
+    <>
+      <div className="app">
       <div className="sidebar">
-        <h1 className="title">Dithering Tool</h1>
-
-        <div className="control-row">
-          <button className="btn" onClick={toggleTheme} aria-label="Toggle theme">
-            <img
-              className="icon"
-              src={theme === 'light' ? '/dark.svg' : '/light.svg'}
-              alt=""
-            />
-          </button>
-          <span className="hint">{theme === 'light' ? 'Light' : 'Dark'} mode</span>
-        </div>
-
-        <div className="file-input">
-          <input type="file" accept="image/*" onChange={handleImageUpload} />
-        </div>
+        <h1 className="title">Tools</h1>
 
         <select
           value={paletteName}
@@ -282,6 +265,9 @@ export default function qingTool() {
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </>
   );
 }
+
+export default DitheringTool
