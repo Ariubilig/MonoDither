@@ -161,110 +161,123 @@ function DitheringTool() {
   return (
     <>
       <div className="app">
-      <div className="sidebar">
-        <h1 className="title">Tools</h1>
+        <aside className="sidebar">
+          <h1 className="title">Tools</h1>
 
-        <select
-          value={paletteName}
-          onChange={(e) => setPaletteName(e.target.value)}
-          className="select"
-        >
-          {Object.keys(defaultPalettes).map((p) => (
-            <option key={p}>{p}</option> 
-          ))}
-          <option>Custom</option>
-        </select>
+          <div className="field">
+            <label className="label" htmlFor="palette">Palette</label>
+            <select
+              id="palette"
+              value={paletteName}
+              onChange={(e) => setPaletteName(e.target.value)}
+              className="select"
+            >
+              {Object.keys(defaultPalettes).map((p) => (
+                <option key={p}>{p}</option>
+              ))}
+              <option>Custom</option>
+            </select>
+          </div>
 
-        {paletteName === "Custom" && (
-          <div className="palette-editor">
-            {customPalette.map((c, i) => (
+          {paletteName === "Custom" && (
+            <div className="palette-editor">
+              <div className="label">Custom colors</div>
+              {customPalette.map((c, i) => (
+                <input
+                  key={i}
+                  type="color"
+                  className="color-swatch"
+                  value={`#${c.map(x => x.toString(16).padStart(2,"0")).join("")}`}
+                  onChange={(e) => {
+                    const hex = e.target.value.match(/[A-Fa-f0-9]{2}/g).map(v => parseInt(v, 16));
+                    updateCustomColor(i, hex);
+                  }}
+                />
+              ))}
+              <button className="btn ghost" onClick={addCustomColor}>+ Add Color</button>
+            </div>
+          )}
+
+          <div className="field">
+            <label className="label" htmlFor="algorithm">Algorithm</label>
+            <select
+              id="algorithm"
+              value={algorithm}
+              onChange={(e) => setAlgorithm(e.target.value)}
+              className="select"
+            >
+              {algorithmNames.map((a) => (
+                <option key={a}>{a}</option>
+              ))}
+            </select>
+          </div>
+
+          <p className="hint">{algorithmsConfig[algorithm]?.descr}</p>
+
+          {algorithmsConfig[algorithm]?.requiresMatrix && (
+            <div className="field">
+              <label className="label" htmlFor="matrix">Matrix size</label>
               <input
-                key={i}
-                type="color"
-                className="color-swatch"
-                value={`#${c.map(x => x.toString(16).padStart(2,"0")).join("")}`}
-                onChange={(e) => {
-                  const hex = e.target.value.match(/[A-Fa-f0-9]{2}/g).map(v => parseInt(v, 16));
-                  updateCustomColor(i, hex);
-                }}
+                id="matrix"
+                type="number"
+                min="2"
+                max="8"
+                value={matrixSize}
+                onChange={(e) => setMatrixSize(parseInt(e.target.value))}
+                className="number"
               />
-            ))}
-            <button className="btn ghost" onClick={addCustomColor}>+ Add Color</button>
-          </div>
-        )}
-
-        <select
-          value={algorithm}
-          onChange={(e) => setAlgorithm(e.target.value)}
-          className="select"
-        >
-          {algorithmNames.map((a) => (
-            <option key={a}>{a}</option>
-          ))}
-        </select>
-
-        <p className="hint">{algorithmsConfig[algorithm]?.descr}</p>
-
-        {algorithmsConfig[algorithm]?.requiresMatrix && (
-          <input
-            type="number"
-            min="2"
-            max="8"
-            value={matrixSize}
-            onChange={(e) => setMatrixSize(parseInt(e.target.value))}
-            className="number"
-          />
-        )}
-
-        <div className="download-wrap">
-          <button onClick={handleDownload} className="btn">
-            Download
-          </button>
-        </div>
-      </div>
-
-      {/* Preview */}
-      <div className="preview">
-        {image ? (
-          <>
-            <div className="tile">
-              <h2>Original</h2>
-              <div className="canvas-wrap">
-                <canvas ref={originalRef} className="canvas-preview" />
-              </div>
             </div>
-            <div className="tile">
-              <h2>Dithered</h2>
-              <div className="canvas-wrap">
-                <canvas ref={ditherRef} className="canvas-preview" />
-              </div>
-            </div>
-          </>
-        ) : (
-          <div
-            className={`dropzone ${isDragging ? "dragging" : ""}`}
-            onDragEnter={handleDragOver}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-            onClick={() => fileInputRef.current?.click()}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') fileInputRef.current?.click(); }}
-            aria-label="Upload or drop an image"
-          >
-            <p className="hint">Drag & drop image here, or click to upload</p>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleImageUpload}
-              aria-hidden="true"
-              className="hidden-input"
-            />
+          )}
+
+          <div className="download-wrap">
+            <button onClick={handleDownload} className="btn">Download</button>
           </div>
-        )}
-      </div>
+        </aside>
+
+        {/* Preview */}
+        <main className="preview">
+          {image ? (
+            <>
+              <section className="tile">
+                <h2>Original</h2>
+                <div className="canvas-wrap">
+                  <canvas ref={originalRef} className="canvas-preview" />
+                </div>
+              </section>
+              <section className="tile">
+                <h2>Dithered</h2>
+                <div className="canvas-wrap">
+                  <canvas ref={ditherRef} className="canvas-preview" />
+                </div>
+              </section>
+            </>
+          ) : (
+            <div
+              className={`dropzone ${isDragging ? "dragging" : ""}`}
+              onDragEnter={handleDragOver}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              onClick={() => fileInputRef.current?.click()}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') fileInputRef.current?.click(); }}
+              aria-label="Upload or drop an image"
+            >
+              <div className="col no-gap">
+                <p className="hint">Drag & drop image here, or click to upload</p>
+              </div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                aria-hidden="true"
+                className="hidden-input"
+              />
+            </div>
+          )}
+        </main>
       </div>
     </>
   );
